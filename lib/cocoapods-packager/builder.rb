@@ -304,7 +304,9 @@ MAP
     end
 
     def ios_architectures
-      archs = %w(x86_64 i386 arm64 armv7 armv7s)
+      # archs = %w(x86_64 i386 arm64 armv7 armv7s) 暂时只编译x86_64 arm64
+      archs = %w(x86_64 arm64)
+      puts "archs support: #{archs}"
       vendored_libraries.each do |library|
         archs = `lipo -info #{library}`.split & archs
       end

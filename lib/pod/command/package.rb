@@ -78,7 +78,24 @@ module Pod
         target_dir, work_dir = create_working_directory
         return if target_dir.nil?
         build_package
+         
+        # 文件迁移FileUtils
+        puts "move files..."
 
+
+        `rm -rf mv #{work_dir}/build/`
+        
+        exist = File::exists?("#{work_dir}/ios/#{@spec.name}.framework/Versions/A/Resources")
+        if exist
+          puts "move Resources..."
+          `rm -rf mv #{work_dir}/ios/#{@spec.name}.framework/Resources`
+          `mv #{work_dir}/ios/#{@spec.name}.framework/Versions/A/Resources  #{work_dir}/ios/#{@spec.name}.framework/`
+        end
+        `rm -rf mv #{work_dir}/ios/#{@spec.name}.framework/Headers`
+        `rm -rf mv #{work_dir}/ios/#{@spec.name}.framework/#{@spec.name}`
+        `mv #{work_dir}/ios/#{@spec.name}.framework/Versions/A/Headers  #{work_dir}/ios/#{@spec.name}.framework/`
+        `mv #{work_dir}/ios/#{@spec.name}.framework/Versions/A/#{@spec.name}  #{work_dir}/ios/#{@spec.name}.framework/`
+        `rm -rf #{work_dir}/ios/#{@spec.name}.framework/Versions`
         `mv "#{work_dir}" "#{target_dir}"`
         Dir.chdir(@source_dir)
       end
