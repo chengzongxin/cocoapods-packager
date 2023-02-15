@@ -53,12 +53,21 @@ RB
         spec += "    s.#{attribute} = #{value}\n"
         end
 
-        #添加subspec
+        #添加subspec (递归添加)
         @generate_spec = spec
         @spec.subspecs.each do |subspec|
           spec_sources_pattern_subpsec(subspec)
         end
         spec = @generate_spec
+
+        dependencies = @spec.attributes_hash['dependencies']
+        dependencies.each { |key,value|
+          if value.empty?
+            spec += "    s.dependency \'#{key}\'\n"
+          else
+            spec += "    s.dependency \'#{key}\', \'#{value[0]}\'\n"
+          end
+        }
 
       # 添加Framwork Pattern
       spec += <<RB
@@ -69,10 +78,10 @@ RB
     s.ios.vendored_framework = "\#{s.name}-\#{s.version}/ios/\#{s.name}.framework"
   end
 RB
-      # cur_work_dir = Dir::getwd
-      # Dir.chdir('/Users/joe.cheng/cocoapods-debug')
-      # File.open('debug' + '.podspec', 'w') { |file| file.write(spec) }
-      # Dir.chdir(cur_work_dir)
+      cur_work_dir = Dir::getwd
+      Dir.chdir('/Users/joe.cheng/cocoapods-debug')
+      File.open('debug' + '.podspec', 'w') { |file| file.write(spec) }
+      Dir.chdir(cur_work_dir)
       spec
     end
 
