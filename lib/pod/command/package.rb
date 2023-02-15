@@ -21,7 +21,8 @@ module Pod
           ['--configuration', 'Build the specified configuration (e.g. Debug). Defaults to Release'],
           ['--subspecs', 'Only include the given subspecs'],
           ['--spec-sources=private,https://github.com/CocoaPods/Specs.git', 'The sources to pull dependent ' \
-            'pods from (defaults to https://github.com/CocoaPods/Specs.git)']
+            'pods from (defaults to https://github.com/CocoaPods/Specs.git)'],
+          ['--generate-spec', 'Generate spec file.']
         ]
       end
 
@@ -57,6 +58,7 @@ module Pod
         @spec = spec_with_path(@name)
         @is_spec_from_path = true if @spec
         @spec ||= spec_with_name(@name)
+        @generate_spec = argv.flag?('generate-spec',false)
         super
       end
 
@@ -76,9 +78,9 @@ module Pod
         end
 
         target_dir, work_dir = create_working_directory
+        puts work_dir
         return if target_dir.nil?
         build_package
-         
         # 文件迁移FileUtils
         puts "move files..."
 
@@ -131,6 +133,8 @@ module Pod
 
           newspec += builder.spec_platform(platform)
         end
+        
+        # newspec += build.spec_sources_pattern(@generate_spec)
 
         newspec += builder.spec_close
         File.open(@spec.name + '.podspec', 'w') { |file| file.write(newspec) }
