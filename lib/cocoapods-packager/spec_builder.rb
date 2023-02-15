@@ -90,7 +90,7 @@ RB
         end
         nextSpec = curSpec + "s"
         @generate_spec += space
-        @generate_spec += "    #{curSpec}.subspec.\'#{name}\' do |#{nextSpec}|\n"
+        @generate_spec += "    #{curSpec}.subspec \'#{name}\' do |#{nextSpec}|\n"
         
       if subspec.subspecs.empty?
 
