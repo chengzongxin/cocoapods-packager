@@ -1,10 +1,11 @@
 module Pod
   class SpecBuilder
-    def initialize(spec, source, embedded, dynamic)
+    def initialize(spec, source, embedded, dynamic, generate_spec)
       @spec = spec
       @source = source.nil? ? '{ :path => \'.\' }' : source
       @embedded = embedded
       @dynamic = dynamic
+      @is_generate_spec = generate_spec
       @generate_spec = ""
     end
 
@@ -68,10 +69,10 @@ RB
     s.ios.vendored_framework = "\#{s.name}-\#{s.version}/ios/\#{s.name}.framework"
   end
 RB
-      cur_work_dir = Dir::getwd
-      Dir.chdir('/Users/joe.cheng/cocoapods-debug')
-      File.open('debug' + '.podspec', 'w') { |file| file.write(spec) }
-      Dir.chdir(cur_work_dir)
+      # cur_work_dir = Dir::getwd
+      # Dir.chdir('/Users/joe.cheng/cocoapods-debug')
+      # File.open('debug' + '.podspec', 'w') { |file| file.write(spec) }
+      # Dir.chdir(cur_work_dir)
       spec
     end
 
@@ -134,10 +135,13 @@ RB
         value = value.dump if value.class == String
         spec += "  s.#{attribute} = #{value}\n"
       end
-      spec_sources_pattern(true)
-      source = spec_sources_pattern(true)
-      spec += "#{source}"
-      spec + "  s.source = #{@source}\n\n"
+      if @is_generate_spec
+        source = spec_sources_pattern(true)
+        spec += "#{source}"
+      else
+        spec += "  s.source = #{@source}\n\n"
+      end
+      spec
     end
   end
 end

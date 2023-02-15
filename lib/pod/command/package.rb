@@ -78,7 +78,7 @@ module Pod
         end
 
         target_dir, work_dir = create_working_directory
-        puts work_dir
+        # puts work_dir
         return if target_dir.nil?
         build_package
         # 文件迁移FileUtils
@@ -125,16 +125,16 @@ module Pod
       end
 
       def build_package
-        builder = SpecBuilder.new(@spec, @source, @embedded, @dynamic)
+        builder = SpecBuilder.new(@spec, @source, @embedded, @dynamic, @generate_spec)
         newspec = builder.spec_metadata
 
         @spec.available_platforms.each do |platform|
           build_in_sandbox(platform)
 
-          newspec += builder.spec_platform(platform)
+          if @generate_spec == false
+            newspec += builder.spec_platform(platform)
+          end
         end
-        
-        # newspec += build.spec_sources_pattern(@generate_spec)
 
         newspec += builder.spec_close
         File.open(@spec.name + '.podspec', 'w') { |file| file.write(newspec) }
