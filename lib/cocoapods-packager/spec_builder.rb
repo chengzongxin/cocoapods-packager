@@ -46,28 +46,28 @@ RB
     s.source           = { :git => '#{@spec.attributes_hash['source']['git']}', :commit => "#{@spec.attributes_hash['source']['commit']}" }
 RB
 
-        %w(source_files public_header_files).each do |attribute|
+        %w(source_files public_header_files resources frameworks resource_bundles dependencies).each do |attribute|
         value = @spec.attributes_hash[attribute]
         next if value.nil?
-        value = value.dump if value.class == String
-        spec += "    s.#{attribute} = #{value}\n"
+          if attribute == 'dependencies'
+            value.each { |key,hashvalue|
+            if hashvalue.empty?
+              spec += "    s.dependency \'#{key}\'\n"
+            else
+              spec += "    s.dependency \'#{key}\', \'#{hashvalue[0]}\'\n"
+            end
+            }
+          else
+              value = value.dump if value.class == String
+              spec += "    s.#{attribute} = #{value}\n"
+          end
         end
-
         #添加subspec (递归添加)
         @generate_spec = spec
         @spec.subspecs.each do |subspec|
           spec_sources_pattern_subpsec(subspec)
         end
         spec = @generate_spec
-
-        dependencies = @spec.attributes_hash['dependencies']
-        dependencies.each { |key,value|
-          if value.empty?
-            spec += "    s.dependency \'#{key}\'\n"
-          else
-            spec += "    s.dependency \'#{key}\', \'#{value[0]}\'\n"
-          end
-        }
 
       # 添加Framwork Pattern
       spec += <<RB
@@ -88,38 +88,40 @@ RB
     def spec_sources_pattern_subpsec(subspec)
         name = subspec.attributes_hash['name']
         level = subspec.name.split('/').count
-        curSpec = ""
-        space = ""
-        $i = 2
-        for i in 2..level do
-          curSpec += "s"
-          if i > 2
-            space += "  "
-          end
-        end
+        curSpec = "s" * (level - 1)
+        space = "  " * (level - 2)
         nextSpec = curSpec + "s"
         @generate_spec += space
         @generate_spec += "    #{curSpec}.subspec \'#{name}\' do |#{nextSpec}|\n"
         
-      if subspec.subspecs.empty?
-
-        %w(source_files public_header_files resources).each do |attribute|
+        %w(source_files public_header_files resources frameworks resource_bundles dependencies).each do |attribute|
           value = subspec.attributes_hash[attribute]
           next if value.nil?
-          value = value.dump if value.class == String
           @generate_spec += space
-          @generate_spec += "      #{nextSpec}.#{attribute} = #{value}\n"
+          if attribute == 'dependencies'
+            value.each { |key,hashvalue|
+            if hashvalue.empty?
+              @generate_spec += "      #{nextSpec}.dependency \'#{key}\'\n"
+            else
+              @generate_spec += "      #{nextSpec}.dependency \'#{key}\', \'#{hashvalue[0]}\'\n"
+            end
+            }
+          else
+            value = value.dump if value.class == String
+            @generate_spec += "      #{nextSpec}.#{attribute} = #{value}\n"
           end
+        end
+
+        if subspec.subspecs.empty?
           @generate_spec += space
           @generate_spec += "    end\n"
-
-      else
-        #添加subspec
-        subspec.subspecs.each do |subsubspec|
-          spec_sources_pattern_subpsec(subsubspec)
+        else
+          #添加subspec
+          subspec.subspecs.each do |subsubspec|
+            spec_sources_pattern_subpsec(subsubspec)
+          end
+          @generate_spec += "    end\n"
         end
-        @generate_spec += "    end\n"
-      end
     end
 
     def spec_metadata
