@@ -78,10 +78,10 @@ RB
     s.ios.vendored_framework = "\#{s.name}-\#{s.version}/ios/\#{s.name}.framework"
   end
 RB
-      cur_work_dir = Dir::getwd
-      Dir.chdir('/Users/joe.cheng/cocoapods-debug')
-      File.open('debug' + '.podspec', 'w') { |file| file.write(spec) }
-      Dir.chdir(cur_work_dir)
+      # cur_work_dir = Dir::getwd
+      # Dir.chdir('/Users/joe.cheng/cocoapods-debug')
+      # File.open('debug' + '.podspec', 'w') { |file| file.write(spec) }
+      # Dir.chdir(cur_work_dir)
       spec
     end
 
