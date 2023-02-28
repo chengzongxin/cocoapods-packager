@@ -9,4 +9,6 @@ group :development do
   gem 'prettybacon'
   gem 'coveralls', :require => false
   gem 'rubocop'
+  gem 'ruby-debug-ide'
+  gem 'debase', '0.2.5.beta2'
 end
